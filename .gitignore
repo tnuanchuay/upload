@@ -1,0 +1,7 @@
+*.txt
+.idea
+*.iml
+*.un~
+.gitignore~
+*.html
+
