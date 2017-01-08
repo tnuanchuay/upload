@@ -76,14 +76,14 @@ func main(){
 func handler(w http.ResponseWriter, r *http.Request){
 	if r.Method != "GET"{
 		r.ParseMultipartForm(32 << 20)
-		file, handler, err := r.FormFile("file")
+		file, handler, err := r.FormFile("upload")
 		if err != nil {
 			log.Println(err)
 			return
 		}
 		defer file.Close()
-
-		f, err := os.OpenFile(fmt.Sprintf("%s%s", path, handler.Filename), os.O_WRONLY | os.O_CREATE, 0666)
+		newpath := fmt.Sprintf("%s%s", path, handler.Filename)
+		f, err := os.OpenFile(newpath, os.O_WRONLY | os.O_CREATE, 0666)
 		if err != nil {
 			log.Println(err)
 			return
@@ -92,8 +92,8 @@ func handler(w http.ResponseWriter, r *http.Request){
 		io.Copy(f, file)
 
 		w.Write([]byte(fmt.Sprintf("ok /%s", handler.Filename)))
-		log.Println("/", handler.Filename)
+		log.Println(fmt.Sprintf("/%s", handler.Filename))
+	}else{
+		w.Write([]byte("not use in method get"))
 	}
-
-	w.Write([]byte("not use in method get"))
 }
