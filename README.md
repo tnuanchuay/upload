@@ -22,4 +22,7 @@ upload --host=ipaddr thefile
 
 ### license
 WTFPL - Do What the Fuck You Want
-###
+
+### todo
+- read host form env
+- --path_to_save save file to specific path
