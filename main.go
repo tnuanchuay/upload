@@ -49,18 +49,6 @@ func main(){
 		http.ListenAndServe(listeningAddress, nil)
 	}else{
 		args := os.Args
-<<<<<<< HEAD
-=======
-		if len(args) == 3{
-			filename := args[2]
-			host := fmt.Sprintf("http://%s:%s/", *server, *port)
-
-			f, _ := filepath.Abs(filename)
-			byteOfFile, err := ioutil.ReadFile(f)
-			if err != nil {
-				log.Fatal("file err : ", err)
-			}
->>>>>>> 21d3a7f2683647a2e3dea0398a69b823543a516d
 
 		filename := args[len(args) -1]
 		if *server == "" {
