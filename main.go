@@ -26,6 +26,8 @@ func main(){
 	serveMode := flag.Bool("serve", false, "serve mode")
 	pathPtr := flag.String("path", "/var/www/html", "specific path to save file")
 	server := flag.String("host", "", "a server to upload")
+  port := flag.String("port", "54321", "a TCP port for listening or establishing")
+
 	flag.Parse()
 
 	if *serveMode {
@@ -41,10 +43,24 @@ func main(){
 			path += "/"
 		}
 
+    listeningAddress := fmt.Sprintf(":%s", *port)
+
 		http.HandleFunc("/", handler)
-		http.ListenAndServe(":54321", nil)
+		http.ListenAndServe(listeningAddress, nil)
 	}else{
 		args := os.Args
+<<<<<<< HEAD
+=======
+		if len(args) == 3{
+			filename := args[2]
+			host := fmt.Sprintf("http://%s:%s/", *server, *port)
+
+			f, _ := filepath.Abs(filename)
+			byteOfFile, err := ioutil.ReadFile(f)
+			if err != nil {
+				log.Fatal("file err : ", err)
+			}
+>>>>>>> 21d3a7f2683647a2e3dea0398a69b823543a516d
 
 		filename := args[len(args) -1]
 		if *server == "" {
