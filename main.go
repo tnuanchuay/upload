@@ -10,6 +10,12 @@ import (
 	"io/ioutil"
 	"github.com/parnurzeal/gorequest"
 	"path/filepath"
+	"strings"
+	"runtime"
+)
+
+const(
+	UPLOAD_HOST_ENV		=	"UPLOAD_HOST"
 )
 
 var(
@@ -39,38 +45,59 @@ func main(){
 		http.ListenAndServe(":54321", nil)
 	}else{
 		args := os.Args
-		if len(args) == 3{
-			filename := args[2]
-			host := fmt.Sprintf("http://%s:54321/", *server)
 
-			f, _ := filepath.Abs(filename)
-			byteOfFile, err := ioutil.ReadFile(f)
-			if err != nil {
-				log.Fatal("file err : ", err)
-			}
-
-			resp, body, errs := gorequest.New().
-				Post(host).
-				Type("multipart").
-				SendFile(byteOfFile, filename, "upload").
-				End()
-
-			if errs != nil{
-				for _, err := range errs{
-					log.Println("gorequest", err)
+		filename := args[len(args) -1]
+		if *server == "" {
+			for _, e := range os.Environ(){
+				pair := strings.Split(e, "=")
+				if pair[0] == UPLOAD_HOST_ENV{
+					server = &pair[1]
+					break
 				}
-				os.Exit(1)
+
+			}
+		}
+
+		if *server == ""{
+			usageString := ""
+			if runtime.GOOS == "windows"{
+				usageString = fmt.Sprintf("SET %s=example.com", UPLOAD_HOST_ENV)
+			}else{
+				usageString = fmt.Sprintf("export %s=example.com", UPLOAD_HOST_ENV)
 			}
 
-			if resp.StatusCode == 200{
-				fmt.Println(body)
-			}else{
-				fmt.Println("err", resp.StatusCode)
+			log.Fatal("need to define host to upload ", usageString, " or use upload --host=example.com filename")
+
+		}
+
+		host := fmt.Sprintf("http://%s:54321/", *server)
+
+		f, _ := filepath.Abs(filename)
+		byteOfFile, err := ioutil.ReadFile(f)
+		if err != nil {
+			log.Fatal("file err : ", err)
+		}
+
+		resp, body, errs := gorequest.New().
+			Post(host).
+			Type("multipart").
+			SendFile(byteOfFile, filename, "upload").
+			End()
+
+		if errs != nil{
+			for _, err := range errs{
+				log.Println("gorequest", err)
 			}
+			os.Exit(1)
+		}
+
+		if resp.StatusCode == 200{
+			fmt.Println(body)
 		}else{
-			log.Fatal("usage : upload --host=127.0.0.1 file.jpg")
+			fmt.Println("err", resp.StatusCode)
 		}
 	}
+
 }
 
 func handler(w http.ResponseWriter, r *http.Request){
